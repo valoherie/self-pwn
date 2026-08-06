@@ -258,7 +258,7 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
         </p>
         <h1 className="sj-h1">Say it, <em>pay it.</em></h1>
         <p className="sj-sub">
-          Every unkind word costs {fmt(cur, fine)}. Aimed at yourself counts too.
+          Every unkind word costs {fmt(cur, fine)}. 
         </p>
         <hr className="sj-rule" />
 
