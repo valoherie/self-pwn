@@ -254,7 +254,7 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
 
       <div className="sj-wrap">
         <p className="sj-eyebrow">
-          {members.map((m) => m.display_name).join(' & ')} — shared jar
+          {members.map((m) => m.display_name).join(' & ')}s' shared jar
         </p>
         <h1 className="sj-h1">Say it, <em>pay it.</em></h1>
         <p className="sj-sub">
