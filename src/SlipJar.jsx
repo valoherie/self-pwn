@@ -377,7 +377,7 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
                   {chosen && chosen.id === me?.id ? 'myself' : 'themselves'}
                 </button>
                 <button className="sj-chip" aria-pressed={target === 'partner'}
-                  onClick={() => setTarget('partner')}>the other one</button>
+                  onClick={() => setTarget('partner')}>the other half</button>
               </div>
             </div>
 
