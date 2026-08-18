@@ -25,6 +25,7 @@ body {
 .sj { padding: 28px 20px 64px; min-height: 100vh; }
 .sj-wrap { max-width: 940px; margin: 0 auto; }
 .sj-narrow { max-width: 400px; margin: 0 auto; padding-top: 6vh; }
+.sj-page-foot { text-align: center; margin-top: 40px; font-size: 12px; color: var(--pine-soft); }
 
 /* --- type ---------------------------------------------------------------- */
 

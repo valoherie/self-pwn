@@ -477,6 +477,10 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
           </div>
         </div>
       </div>
+
+      <footer className="sj-page-foot">
+        <p>© {new Date().getFullYear()} Made with care by <a href="https://valerielee.pages.dev/">Valerie Lee</a></p>
+      </footer>
     </div>
   )
 }
