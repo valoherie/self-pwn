@@ -127,8 +127,23 @@ body {
 .sj-jarcol { position: sticky; top: 20px; }
 @media (max-width: 760px) { .sj-jarcol { position: static; } }
 
-.sj-jar { width: 100%; max-width: 230px; display: block; margin: 0 auto; }
-.sj-coin { mix-blend-mode: multiply; }
+.sj-jar { width: 100%; max-width: 230px; display: block; margin: 0 auto; cursor: pointer; }
+.sj-jar:focus-visible { outline: 2px solid var(--coral); outline-offset: 4px; }
+.sj-coin {
+  mix-blend-mode: multiply;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sj-jingle 0.5s cubic-bezier(.36,.07,.19,.97) backwards;
+}
+@keyframes sj-jingle {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(var(--sj-dx, 6px), var(--sj-dy, -10px)) rotate(var(--sj-rot, 10deg)); }
+  65% { transform: translate(calc(var(--sj-dx, 6px) * -0.5), calc(var(--sj-dy, -10px) * -0.25)) rotate(calc(var(--sj-rot, 10deg) * -0.4)); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sj-coin { animation: none; }
+}
 
 .sj-balance { text-align: center; margin-top: 10px; }
 .sj-bal-num {
@@ -148,6 +163,8 @@ body {
 /* --- ledger -------------------------------------------------------------- */
 
 .sj-ledger { list-style: none; margin: 0; padding: 0; }
+.sj-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; }
+.sj-pager-lab { font-size: 11px; color: var(--pine-soft); }
 .sj-row { display: flex; gap: 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .sj-who { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; flex: 0 0 auto; padding-top: 3px; }
 .sj-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }

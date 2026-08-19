@@ -33,6 +33,7 @@ const rnd = (i, s) => {
 }
 
 function Jar({ count }) {
+  const [shakeKey, setShakeKey] = useState(0)
   const visible = Math.min(count, 64)
   const coins = []
   for (let i = 0; i < visible; i++) {
@@ -40,25 +41,43 @@ function Jar({ count }) {
       x: 52 + (i % 4) * 32 + (rnd(i, 1) - 0.5) * 11,
       y: 298 - Math.floor(i / 4) * 12 - rnd(i, 2) * 3,
       r: 14 + rnd(i, 3) * 2,
+      dx: (rnd(i, 4) - 0.5) * 24,
+      dy: -6 - rnd(i, 5) * 16,
+      rot: (rnd(i, 6) - 0.5) * 44,
+      delay: rnd(i, 7) * 0.1,
     })
   }
   const body =
     'M 68 56 C 68 76, 28 78, 28 108 L 28 288 C 28 306, 42 316, 60 316 L 140 316 C 158 316, 172 306, 172 288 L 172 108 C 172 78, 132 76, 132 56 Z'
 
+  const jingle = () => setShakeKey((k) => k + 1)
+
   return (
-    <svg className="sj-jar" viewBox="0 0 200 344" role="img"
-      aria-label={`Jar containing ${count} coin${count === 1 ? '' : 's'}`}>
+    <svg className="sj-jar" viewBox="0 0 200 344" role="button" tabIndex={0}
+      aria-label={`Jar containing ${count} coin${count === 1 ? '' : 's'}. Tap to jingle.`}
+      onClick={jingle}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jingle() }
+      }}>
       <defs><clipPath id="sj-inside"><path d={body} /></clipPath></defs>
       <rect x="60" y="18" width="80" height="22" rx="4" fill="#123B36" opacity="0.9" />
       <rect x="68" y="40" width="64" height="18" fill="none" stroke="#123B36" strokeWidth="2.5" />
       <path d={body} fill="#ffffff" opacity="0.5" />
       <g clipPath="url(#sj-inside)">
-        {coins.map((c, i) => (
-          <g className="sj-coin" key={i}>
-            <circle cx={c.x} cy={c.y} r={c.r} fill="#E0A126" opacity="0.92" />
-            <circle cx={c.x} cy={c.y} r={c.r * 0.55} fill="none" stroke="#123B36" strokeWidth="1.1" opacity="0.35" />
-          </g>
-        ))}
+        <g key={shakeKey}>
+          {coins.map((c, i) => (
+            <g className="sj-coin" key={i}
+              style={{
+                '--sj-dx': `${c.dx}px`,
+                '--sj-dy': `${c.dy}px`,
+                '--sj-rot': `${c.rot}deg`,
+                animationDelay: `${c.delay}s`,
+              }}>
+              <circle cx={c.x} cy={c.y} r={c.r} fill="#E0A126" opacity="0.92" />
+              <circle cx={c.x} cy={c.y} r={c.r * 0.55} fill="none" stroke="#123B36" strokeWidth="1.1" opacity="0.35" />
+            </g>
+          ))}
+        </g>
       </g>
       <path d={body} fill="none" stroke="#123B36" strokeWidth="2.5" />
       <path d="M 44 130 L 44 250" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" opacity="0.7" />
@@ -92,6 +111,7 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
   const [settings, setSettings] = useState(false)
   const [picker, setPicker] = useState(false)
   const [fineDraft, setFineDraft] = useState(null)   // null = not editing
+  const [page, setPage] = useState(0)
 
   const load = useCallback(async () => {
     try {
@@ -114,6 +134,7 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
 
   useEffect(() => { setLoading(true); load() }, [load])
   useEffect(() => watchJar(jarId, load), [jarId, load])
+  useEffect(() => { setPage(0) }, [jarId])
 
   const run = async (fn) => {
     setBusy(true); setError('')
@@ -167,6 +188,11 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
     ...cashouts.map((c) => ({ kind: 'c', at: c.created_at, c })),
   ].sort((x, y) => new Date(y.at) - new Date(x.at))
 
+  const PAGE_SIZE = 8
+  const pageCount = Math.max(1, Math.ceil(feed.length / PAGE_SIZE))
+  const pageSafe = Math.min(page, pageCount - 1)
+  const pageItems = feed.slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE)
+
   const submit = async () => {
     if (!amtValid || !saidBy) return
     const ok = await run(() => addEntry(jarId, {
@@ -175,13 +201,15 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
       text: said.trim(),
       amount: amtBlank ? fine : Math.round(amtNum * 100) / 100,
     }))
-    if (ok) { setSaid(''); setAmt('') }
+    if (ok) { setSaid(''); setAmt(''); setPage(0) }
   }
 
   const empty = () => {
     const note = window.prompt('What are you spending it on?')
     if (note === null) return
-    run(() => addCashout(jarId, note.trim() || 'something nice', balance))
+    run(() => addCashout(jarId, note.trim() || 'something nice', balance)).then((ok) => {
+      if (ok) setPage(0)
+    })
   }
 
   const rename = (m) => {
@@ -434,8 +462,9 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
             {feed.length === 0 ? (
               <div className="sj-empty">Nothing in the jar yet. Long may it last.</div>
             ) : (
+              <>
               <ul className="sj-ledger">
-                {feed.map((item) => item.kind === 'c' ? (
+                {pageItems.map((item) => item.kind === 'c' ? (
                   <li className="sj-cash" key={item.c.id}>
                     Jar emptied on <b>{item.c.note}</b> — {fmt(cur, item.c.amount)}
                     <span className="sj-meta">{dateLabel(item.c.created_at)}</span>
@@ -462,6 +491,20 @@ export default function SlipJar({ jarId, user, jars = [], onSwitchJar, onAddJar,
                   </li>
                 ))}
               </ul>
+              {pageCount > 1 && (
+                <div className="sj-pager">
+                  <button className="sj-btn ghost" onClick={() => setPage((p) => p - 1)}
+                    disabled={pageSafe === 0}>
+                    ← Newer
+                  </button>
+                  <span className="sj-pager-lab">Page {pageSafe + 1} of {pageCount}</span>
+                  <button className="sj-btn ghost" onClick={() => setPage((p) => p + 1)}
+                    disabled={pageSafe >= pageCount - 1}>
+                    Older →
+                  </button>
+                </div>
+              )}
+              </>
             )}
 
             <div className="sj-foot">
