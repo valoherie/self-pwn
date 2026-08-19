@@ -126,8 +126,7 @@ export default function Gate({ children }) {
   return (
     <div className="gt"><style>{css}</style>
       <div className="gt-card">
-        <p className="gt-eyebrow">Private jar</p>
-        <h1 className="gt-h1">Self-,<br /><em>Pwn Jar</em></h1>
+        <h1 className="gt-h1">Kindness<br /><em> Jar</em></h1>
         <p className="gt-sub">Just the two of you. Sign in to see the jar.</p>
         <hr className="gt-rule" />
 

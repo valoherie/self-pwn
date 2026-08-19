@@ -69,8 +69,7 @@ export default function SignIn() {
 
   return (
     <div className="sj"><div className="sj-narrow">
-      <p className="sj-eyebrow">Private jar</p>
-      <h1 className="sj-h1">Self-<br /><em>Pwn Jar</em></h1>
+      <h1 className="sj-h1">Kindness<br /><em> Jar</em></h1>
       <p className="sj-sub">
         A jar for the unkind things — the ones aimed at yourself, and the ones
         aimed at each other.
@@ -114,9 +113,12 @@ export default function SignIn() {
           </button>
         </>
       ) : (
+        <div>
+        <label className="sj-note">Rather not use Google?</label><br/>
         <button className="sj-link" onClick={() => { setEmailMode(true); setError('') }}>
-          Rather not use Google? Email me a link instead
+         Email me a link instead
         </button>
+        </div>
       )}
     </div></div>
   )
